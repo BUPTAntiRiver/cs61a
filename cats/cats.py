@@ -37,6 +37,13 @@ def pick(paragraphs, select, k):
     """
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    for p in paragraphs:
+        if select(p):
+            if k == 0:
+                return p
+            else:
+                k = k - 1
+    return ''
     # END PROBLEM 1
 
 
@@ -57,6 +64,16 @@ def about(subject):
 
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    def check(paragraphs):
+        paragraphs = lower(paragraphs)
+        paragraphs = remove_punctuation(paragraphs)
+        ps = split(paragraphs)
+        for s in subject:
+            for p in ps:
+                if p == s:
+                    return True
+        return False
+    return check
     # END PROBLEM 2
 
 
