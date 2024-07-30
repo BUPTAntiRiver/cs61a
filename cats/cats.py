@@ -247,7 +247,7 @@ def furry_fixes(typed, source, limit):
     else:
         if typed[0] == source[0]:
             return furry_fixes(typed[1:], source[1:], limit)
-        else :
+        else:
             return 1 + furry_fixes(typed[1:], source[1:], limit - 1)
     # END PROBLEM 6
 
@@ -269,22 +269,35 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
+    if limit < 0: # Base cases should go here, you may add more base cases as needed.
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return 0
         # END
     # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
+    if typed == source: # Feel free to remove or add additional cases
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return 0
         # END
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
         # BEGIN
         "*** YOUR CODE HERE ***"
+        if len(typed) == 0 or len(source) == 0:
+                return len(typed) + len(source)
+        if not typed[0] == source[0]:
+            """
+            There could be two situation when the characters are not equal:
+            1. typed is shorted than source, in this case we will add the corresponding character in 
+            source;
+            2. typed is longer than source, in this case we will remove this character in typed.
+            """
+            add =  1 + minimum_mewtations(typed, source[1:], limit - 1)
+            remove = 1 + minimum_mewtations(typed[1:], source, limit - 1)
+            substitute = 1 + minimum_mewtations(typed[1:], source[1:], limit - 1)
+            return min(add, remove, substitute)
+        else:
+            return minimum_mewtations(typed[1:], source[1:], limit)
         # END
 
 
