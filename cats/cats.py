@@ -167,6 +167,14 @@ def memo_diff(diff_function):
     def memoized(typed, source, limit):
         # BEGIN PROBLEM EC
         "*** YOUR CODE HERE ***"
+        if (typed, source) not in cache:
+            result = (diff_function(typed, source, limit), limit)
+            cache[(typed, source)] = result
+            return result[0]
+        if not limit <= cache[(typed, source)][1]:
+            cache[(typed, source)] = (diff_function(typed, source, limit), limit)
+        return cache[(typed, source)][0]
+        
         # END PROBLEM EC
 
     return memoized
@@ -176,7 +184,7 @@ def memo_diff(diff_function):
 # Phase 2 #
 ###########
 
-
+@memo
 def autocorrect(typed_word, word_list, diff_function, limit):
     """Returns the element of WORD_LIST that has the smallest difference
     from TYPED_WORD based on DIFF_FUNCTION. If multiple words are tied for the smallest difference,
@@ -251,7 +259,7 @@ def furry_fixes(typed, source, limit):
             return 1 + furry_fixes(typed[1:], source[1:], limit - 1)
     # END PROBLEM 6
 
-
+@memo_diff
 def minimum_mewtations(typed, source, limit):
     """A diff function for autocorrect that computes the edit distance from TYPED to SOURCE.
     This function takes in a string TYPED, a string SOURCE, and a number LIMIT.
@@ -281,17 +289,16 @@ def minimum_mewtations(typed, source, limit):
         return 0
         # END
     else:
+        if typed in source or source in typed:
+            if abs(len(typed) - len(source)) <= limit:
+                return abs(len(typed) - len(source))
+            else:
+                return limit + 1
         # BEGIN
         "*** YOUR CODE HERE ***"
         if len(typed) == 0 or len(source) == 0:
                 return len(typed) + len(source)
         if not typed[0] == source[0]:
-            """
-            There could be two situation when the characters are not equal:
-            1. typed is shorted than source, in this case we will add the corresponding character in 
-            source;
-            2. typed is longer than source, in this case we will remove this character in typed.
-            """
             add =  1 + minimum_mewtations(typed, source[1:], limit - 1)
             remove = 1 + minimum_mewtations(typed[1:], source, limit - 1)
             substitute = 1 + minimum_mewtations(typed[1:], source[1:], limit - 1)
