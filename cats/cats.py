@@ -407,6 +407,7 @@ def time_per_word_match(words, timestamps_per_player):
     """
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
+    return match(time_per_word(words, timestamps_per_player)[0], time_per_word(words, timestamps_per_player)[1])
     # END PROBLEM 10
 
 
