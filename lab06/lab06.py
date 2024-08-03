@@ -20,6 +20,12 @@ def count_occurrences(t, n, x):
     2
     """
     "*** YOUR CODE HERE ***"
+    count = 0
+    while n:
+        if next(t) == x:
+            count += 1
+        n -= 1
+    return count
 
 
 def hailstone(n):
@@ -36,6 +42,13 @@ def hailstone(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    yield n
+    while n > 1:
+        if n % 2 == 0:
+            n //= 2
+        else:
+            n = n * 3 + 1
+        yield n
 
 
 def merge(incr_a, incr_b):
@@ -58,6 +71,24 @@ def merge(incr_a, incr_b):
     iter_a, iter_b = iter(incr_a), iter(incr_b)
     next_a, next_b = next(iter_a, None), next(iter_b, None)
     "*** YOUR CODE HERE ***"
+    while next_a != None and next_b != None:
+        if next_a < next_b:
+            yield next_a
+            next_a = next(iter_a, None)
+        elif next_b == next_a:
+            yield next_a
+            next_a = next(iter_a, None)
+            next_b = next(iter_b, None)
+        else:
+            yield next_b
+            next_b = next(iter_b, None)
+    while next_a != None:
+        yield next_a
+        next_a = next(iter_a, None)
+
+    while next_b != None:
+        yield next_b
+        next_b = next(iter_b, None)
 
 
 def deep_map(f, s):
@@ -83,7 +114,13 @@ def deep_map(f, s):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    i = 0
+    while i < len(s):
+        if type(s[i]) == list:
+            deep_map(f, s[i])
+        else:
+            s[i] = f(s[i])
+        i += 1
 
 def buy(required_fruits, prices, total_amount):
     """Print ways to buy some of each fruit so that the sum of prices is amount.
@@ -104,9 +141,10 @@ def buy(required_fruits, prices, total_amount):
             print(cart)
         elif fruits and amount > 0:
             fruit = fruits[0]
-            price = ____
-            for k in ____:
-                add(____, ____, ____)
+            price = prices[fruit]
+            for k in range(1, amount // price + 1):
+                add(fruits[1:], amount - k * price, cart + display(fruit, k))
+
     add(required_fruits, total_amount, '')
 
 
