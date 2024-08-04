@@ -9,7 +9,17 @@ def hailstone(n):
     1
     """
     "*** YOUR CODE HERE ***"
-
+    yield n
+    while True:
+        if n == 1:
+            yield n
+        else:
+            if n % 2 == 0:
+                n = n // 2
+                yield n
+            else:
+                n = n * 3 + 1
+                yield n
 
 def merge(a, b):
     """Q2:
@@ -24,6 +34,19 @@ def merge(a, b):
     [2, 3, 5, 7, 8, 9, 11, 13, 14, 15]
     """
     "*** YOUR CODE HERE ***"
+    next_a = next(a)
+    next_b = next(b)
+    while True:
+        if next_a < next_b:
+            yield next_a
+            next_a = next(a)
+        elif next_a == next_b:
+            yield next_a
+            next_a = next(a)
+            next_b = next(b)
+        else:
+            yield next_b
+            next_b = next(b)
 
 
 def perms(seq):
@@ -49,6 +72,14 @@ def perms(seq):
     [['a', 'b'], ['b', 'a']]
     """
     "*** YOUR CODE HERE ***"
+    if len(list(seq)) == 1:
+        yield seq
+    else:
+        for sub_seq in perms(list(seq)[:-1]):
+            for i in range(len(sub_seq) + 1):
+                res = sub_seq[:]
+                res.insert(i, seq[-1])
+                yield res
 
 
 def yield_paths(t, value):
@@ -86,10 +117,10 @@ def yield_paths(t, value):
     [[0, 2], [0, 2, 1, 2]]
     """
     if label(t) == value:
-        yield ____
+        yield [label(t)]
     for b in branches(t):
-        for ____ in ____:
-            yield ____
+        for x in yield_paths(b, value):
+            yield [label(t)] + x
 
 
 class Minty:
@@ -116,24 +147,33 @@ class Minty:
     115
     """
     present_year = 2021
-
+    year = 0
     def __init__(self):
         self.update()
 
     def create(self, type):
         "*** YOUR CODE HERE ***"
+        return Coin(self.year, type)
 
     def update(self):
         "*** YOUR CODE HERE ***"
+        self.year = Minty.present_year
 
 class Coin:
     cents = 50
+    year = 0
 
     def __init__(self, year, type):
         "*** YOUR CODE HERE ***"
+        if type == 'Nickel':
+            self.cents = 5
+        elif type == 'Dime':
+            self.cents = 10
+        self.year = year
 
     def worth(self):
         "*** YOUR CODE HERE ***"
+        return self.cents + max(Minty.present_year - self.year - 50, 0)
 
 
 class VendingMachine:
@@ -174,7 +214,43 @@ class VendingMachine:
     'Here is your soda.'
     """
     "*** YOUR CODE HERE ***"
+    stock = 0
+    name = None
+    price = 0
+    balance = 0
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    
+    def vend(self):
+        if self.stock == 0:
+            return 'Nothing left to vend. Please restock.'
+        elif self.balance < self.price:
+            return f'Please add ${self.price - self.balance} more funds.'
+        elif self.balance == self.price:
+            self.balance -= self.price
+            self.stock -= 1
+            return f'Here is your {self.name}.'
+        else:
+            charge = self.balance - self.price
+            self.balance = 0
+            self.stock -= 1
+            return f'Here is your {self.name} and ${charge} change.'
+            
 
+    def add_funds(self, funds):
+        if self.stock == 0:
+            charge = funds
+            self.balance = 0
+            return f'Nothing left to vend. Please restock. Here is your ${charge}.'
+            
+        else:
+            self.balance += funds
+            return f'Current balance: ${self.balance}'
+
+    def restock(self, stock):
+        self.stock += stock
+        return f'Current {self.name} stock: {self.stock}'
 
 
 # Tree Data Abstraction
