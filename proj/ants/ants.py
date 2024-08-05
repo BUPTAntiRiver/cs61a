@@ -52,6 +52,7 @@ class Insect:
 
     next_id = 0  # Every insect gets a unique id number
     damage = 0
+    is_waterproof = False
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health, place=None):
@@ -100,6 +101,7 @@ class Ant(Insect):
     implemented = False  # Only implemented Ant classes should be instantiated
     food_cost = 0
     is_container = False
+    is_buffed = False
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health=1):
@@ -372,6 +374,19 @@ class BodyguardAnt(ContainerAnt):
 
 # BEGIN Problem 9
 # The TankAnt class
+class TankAnt(ContainerAnt):
+    name = 'Tank'
+    food_cost = 6
+    damage = 1
+    implemented = True
+    def __init__(self, health=2):
+        super().__init__(health)
+
+    def action(self, gamestate):
+        copy = self.place.bees[:]
+        for bee in copy:
+            bee.reduce_health(self.damage)
+        return super().action(gamestate)
 # END Problem 9
 
 
@@ -383,10 +398,18 @@ class Water(Place):
         its health to 0."""
         # BEGIN Problem 10
         "*** YOUR CODE HERE ***"
+        super().add_insect(insect)
+        if not insect.is_waterproof:
+            insect.reduce_health(insect.health)
         # END Problem 10
 
 # BEGIN Problem 11
 # The ScubaThrower class
+class ScubaThrower(ThrowerAnt):
+    name = 'Scuba'
+    implemented = True
+    food_cost = 6
+    is_waterproof = True
 # END Problem 11
 
 
@@ -397,7 +420,8 @@ class QueenAnt(ThrowerAnt):
     food_cost = 7
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem 12
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
+
     # END Problem 12
 
     def action(self, gamestate):
@@ -406,6 +430,19 @@ class QueenAnt(ThrowerAnt):
         """
         # BEGIN Problem 12
         "*** YOUR CODE HERE ***"
+        super().action(gamestate)
+        behind = self.place.exit
+        while behind != None:
+            if behind.ant != None:
+                if behind.ant.is_buffed == False:
+                    behind.ant.damage *= 2
+                    behind.ant.is_buffed = True
+                if behind.ant.is_container:
+                    if behind.ant.ant_contained != None:
+                        if not behind.ant.ant_contained.is_buffed:
+                            behind.ant.ant_contained.damage *= 2
+                            behind.ant.ant_contained.is_buffed = True
+            behind = behind.exit
         # END Problem 12
 
     def reduce_health(self, amount):
@@ -414,6 +451,9 @@ class QueenAnt(ThrowerAnt):
         """
         # BEGIN Problem 12
         "*** YOUR CODE HERE ***"
+        super().reduce_health(amount)
+        if self.health <= 0:
+            ants_lose()
         # END Problem 12
 
 
