@@ -67,9 +67,21 @@ class Player:
 
     def debate(self, other):
         "*** YOUR CODE HERE ***"
+        p1 = self.popularity
+        p2 = other.popularity
+        win_rate = max(0.1, p1 / (p1 + p2))
+        if self.random_func() < win_rate:
+            self.popularity += 50
+        else:
+            self.popularity -= 50
+            self.popularity = max(0, self.popularity)
 
     def speech(self, other):
         "*** YOUR CODE HERE ***"
+        self.votes += self.popularity // 10
+        self.popularity += self.popularity // 10
+        other.popularity -= other.popularity // 10
+        other.popularity = max(0, other.popularity)
 
     def choose(self, other):
         return self.speech
@@ -101,6 +113,10 @@ class Game:
     def play(self):
         while not self.game_over():
             "*** YOUR CODE HERE ***"
+            self.p1.choose(self.p2)(self.p2)
+            self.turn += 1
+            self.p2.choose(self.p1)(self.p1)
+            self.turn += 1
         return self.winner()
 
     def game_over(self):
@@ -108,6 +124,12 @@ class Game:
 
     def winner(self):
         "*** YOUR CODE HERE ***"
+        if self.p1.votes > self.p2.votes:
+            return self.p1
+        elif self.p1.votes == self.p2.votes:
+            return None
+        else:
+            return self.p2
 
 
 ### Phase 3: New Players
@@ -131,6 +153,10 @@ class AggressivePlayer(Player):
     """
     def choose(self, other):
         "*** YOUR CODE HERE ***"
+        if self.popularity <= other.popularity:
+            return self.debate
+        else:
+            return self.speech
 
 class CautiousPlayer(Player):
     """
@@ -148,6 +174,10 @@ class CautiousPlayer(Player):
     """
     def choose(self, other):
         "*** YOUR CODE HERE ***"
+        if self.popularity == 0:
+            return self.debate
+        else:
+            return self.speech
 
 
 def add_d_leaves(t, v):
@@ -213,7 +243,13 @@ def add_d_leaves(t, v):
         10
     """
     "*** YOUR CODE HERE ***"
-
+    def add_leaves(t, v, d):
+        for b in t.branches:
+            add_leaves(b, v, d + 1)
+        for _ in range(d):
+            t.branches += [Tree(v)]
+    add_leaves(t, v, 0)
+    
 
 def level_mutation_link(t, funcs):
 	"""Mutates t using the functions in the linked list funcs.
@@ -232,16 +268,16 @@ def level_mutation_link(t, funcs):
 	>>> t3    # Level 0: 1+1=2; Level 1: 2*5=10; no further levels, so apply remaining z ** 2: 10**2=100
 	Tree(2, [Tree(100)])
 	"""
-	if _____________________:
+	if funcs == Link.empty:
 		return
-	t.label = _____________________
-	remaining = _____________________
-	if __________________ and __________________:
-		while _____________________:
-			_____________________
+	t.label = funcs.first(t.label)
+	remaining = funcs.rest
+	if not t.branches and remaining != Link.empty:
+		while remaining != Link.empty:
+			t.label = remaining.first(t.label)
 			remaining = remaining.rest
 	for b in t.branches:
-		_____________________
+		level_mutation_link(b, remaining)
 
 
 def store_digits(n):
@@ -262,6 +298,16 @@ def store_digits(n):
     >>> print("Do not use str or reversed!") if any([r in cleaned for r in ["str", "reversed"]]) else None
     """
     "*** YOUR CODE HERE ***"
+    if n < 10:
+        return Link(n)
+    remain = 0
+    factor = 1
+    while n >= 10:    
+        remain += n % 10 * factor
+        factor *= 10
+        n //= 10
+    return Link(n, store_digits(remain))
+    
 
 
 def deep_map_mut(func, lnk):
@@ -284,6 +330,12 @@ def deep_map_mut(func, lnk):
     <9 <16> 25 36>
     """
     "*** YOUR CODE HERE ***"
+    while lnk != Link.empty:
+        if type(lnk.first) == Link:
+            deep_map_mut(func, lnk.first)
+        else:
+            lnk.first = func(lnk.first)
+        lnk = lnk.rest
 
 
 def crispr_gene_insertion(lnk_of_genes, insert):
@@ -307,6 +359,19 @@ def crispr_gene_insertion(lnk_of_genes, insert):
     ()
     """
     "*** YOUR CODE HERE ***"
+    gene_index = 0
+    current_gene = lnk_of_genes
+    while current_gene != Link.empty:
+        gene_index += 1
+        gene = current_gene.first
+        while gene != Link.empty:
+            if gene.first == 'AUG':
+                for _ in range(gene_index):
+                    gene.rest = Link(insert, gene.rest)
+                break
+            gene = gene.rest
+        current_gene = current_gene.rest
+        
 
 def transcribe(dna):
     """Takes a string of DNA and returns a Python list with the RNA codons.
@@ -316,7 +381,7 @@ def transcribe(dna):
     ['AUG', 'GAU', 'CGG', 'GUA', 'UUU']
     """
     dict = {'A': 'U', 'T': 'A', 'G': 'C', 'C': 'G'}
-    return __________________
+    return [(dict[dna[a]] + dict[dna[a+1]] + dict[dna[a+2]]) for a in range(0, len(dna), 3)]
 
 
 class Tree:
